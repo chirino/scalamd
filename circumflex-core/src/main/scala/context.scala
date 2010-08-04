@@ -125,6 +125,9 @@ class CircumflexContext(val request: HttpServletRequest,
     "param" -> param,
     "lookup" -> lookup
     )
+
+  def params = _params
+
   def get(key: String): Option[Any] = _params.get(key) match {
     case Some(value) if (value != null) => value
     case _ => request.getParameter(key)
