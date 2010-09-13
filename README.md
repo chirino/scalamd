@@ -1,28 +1,24 @@
-# Circumflex — lightweight Scala-based Web framework and ORM
+# The Scala Markdown Library
 
-## 1. Prerequisites
+## Overview
+
+This is a standalone version of the Markdown library originally developed by the 
+Circumflex folks over at `git://github.com/inca/circumflex.git`
+
+## Prerequisites
 
 * Java 6 SDK
 * Apache Maven 2.1 or later
 * Git
 
-## 2. Build from sources
+## Build from sources
 
 Clone Circumflex repository:
 
-    git clone git://github.com/inca/circumflex.git
+    git clone git://github.com/chirino/scalamd.git
 
 Build with Maven:
 
-    cd circumflex
+    cd scalamd
     mvn clean install
-
-## 3. Create new project
-
-Create a new project from Circumflex Archetype:
-
-    cd /path/to/my/projects
-    mvn archetype:generate
-
-and choose `circumflex-archetype` from list.
 

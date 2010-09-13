@@ -1,6 +1,6 @@
 package ru.circumflex.md
 
-import ru.circumflex.core._
+// import ru.circumflex.core._
 import java.util.regex._
 import java.util.Random
 import java.lang.StringBuilder
@@ -19,42 +19,15 @@ object Markdown {
 
   // ## SmartyPants chars
 
-  val leftQuote = Circumflex.get("md.leftQuote") match {
-    case Some(s: String) => s
-    case _ => "&ldquo;"
-  }
-  val rightQuote = Circumflex.get("md.rightQuote") match {
-    case Some(s: String) => s
-    case _ => "&rdquo;"
-  }
-  val dash = Circumflex.get("md.dash") match {
-    case Some(s: String) => s
-    case _ => "&mdash;"
-  }
-  val copy = Circumflex.get("md.copy") match {
-    case Some(s: String) => s
-    case _ => "&copy;"
-  }
-  val reg = Circumflex.get("md.reg") match {
-    case Some(s: String) => s
-    case _ => "&reg;"
-  }
-  val trademark = Circumflex.get("md.trademark") match {
-    case Some(s: String) => s
-    case _ => "&trade;"
-  }
-  val ellipsis = Circumflex.get("md.ellipsis") match {
-    case Some(s: String) => s
-    case _ => "&hellip;"
-  }
-  val leftArrow = Circumflex.get("md.leftArrow") match {
-    case Some(s: String) => s
-    case _ => "&larr;"
-  }
-  val rightArrow = Circumflex.get("md.rightArrow") match {
-    case Some(s: String) => s
-    case _ => "&rarr;"
-  }
+  val leftQuote = "&ldquo;"
+  val rightQuote = "&rdquo;"
+  val dash = "&mdash;"
+  val copy ="&copy;"
+  val reg = "&reg;"
+  val trademark = "&trade;"
+  val ellipsis = "&hellip;"
+  val leftArrow = "&larr;"
+  val rightArrow = "&rarr;"
 
   // ## Commons
 

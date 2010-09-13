@@ -1,328 +1,151 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ru.circumflex</groupId>
-  <artifactId>circumflex-parent</artifactId>
-  <packaging>pom</packaging>
-  <version>1.3-SNAPSHOT</version>
-  <name>Circumflex</name>
-  <description>
-    Circumflex is a set of software components for quick and robust application
-    development using Scala programming language.
-  </description>
-  <url>http://circumflex.ru</url>
+  <parent>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fusesource-pom</artifactId>
+    <version>1.0</version>
+  </parent>
 
-  <modules>
-    <module>circumflex-core</module>
-    <module>circumflex-orm</module>
-    <module>circumflex-md</module>
-    <module>circumflex-docco</module>
-    <module>circumflex-maven-plugin</module>
-    <module>circumflex-ftl</module>
-    <module>circumflex-scalate</module>
-    <module>circumflex-archetype</module>
-  </modules>
+  <groupId>org.fusesource.scalamd</groupId>
+  <artifactId>scalamd</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>Scala Markdown</name>
+
+  <inceptionYear>2010</inceptionYear>
+  <description>Scala port of http://daringfireball.net/projects/markdown.</description>
 
   <properties>
-    <scala.version>2.8.0</scala.version>
+    <scala-version>2.8.0</scala-version>
+    <maven-scala-plugin-version>2.14</maven-scala-plugin-version>
+    <maven-surefire-plugin-version>2.4.3</maven-surefire-plugin-version>
+    
+    <release-altGitURL>scm:git:ssh://git@github.com:chirino/scalamd.git</release-altGitURL>
   </properties>
-
+    
   <dependencies>
-    <!-- Servlet API -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Scala -->
+    
+    <!-- Scala Support: this needs to be copied into every scala project -->
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
+      <scope>compile</scope>
+      <version>${scala-version}</version>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
-      <version>${scala.version}</version>
+      <version>${scala-version}</version>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
-    <!-- Logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.5.8</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.8</version>
-    </dependency>
-    <!-- Commons -->
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>1.8.0</version>
-    </dependency>
+    
+    <!-- Testing Deps -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.4</version>
-    </dependency>
-    <!-- Testing -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.scala-tools.testing</groupId>
-      <artifactId>specs_2.8.0.Beta1-RC8</artifactId>
-      <version>1.6.2</version>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.5</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-servlet-tester</artifactId>
-      <version>6.1.20</version>
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.scala-tools</groupId>
-              <artifactId>maven-scala-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>scaladocs</id>
-                  <phase>process-classes</phase>
-                  <goals>
-                    <goal>doc</goal>
-                  </goals>
-                </execution>
-              </executions>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <version>1.4</version>
-              <executions>
-                <execution>
-                  <id>scaladocs-jar</id>
-                  <phase>process-classes</phase>
-                  <goals>
-                    <goal>run</goal>
-                  </goals>
-                  <configuration>
-                    <tasks>
-                      <jar destfile="target/${project.artifactId}-${project.version}-javadoc.jar"
-                           basedir="target/site/scaladocs"/>
-                      <attachartifact file="target/${project.artifactId}-${project.version}-javadoc.jar"
-                                      classifier="javadoc"
-                                      type="jar"/>
-                    </tasks>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-      <distributionManagement>
-        <repository>
-          <id>nexus</id>
-          <name>Sonatype Nexus Releases</name>
-          <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-      </distributionManagement>
-    </profile>
-  </profiles>
+  <scm>
+    <connection>scm:git:git://github.com/chirino/scalamd.git</connection>
+    <!-- Work around for issue: http://jira.codehaus.org/browse/SCM-444 -->
+    <developerConnection>${release-altGitURL}</developerConnection>
+    <url>http://github.com/chirino/scalamd/tree/master</url>
+  </scm>
+  <distributionManagement>
+    <site>
+      <id>website.fusesource.org</id>
+      <name>website</name>
+      <url>dav:http://fusesource.com/forge/dav/${forge-project-id}/maven/${project.version}</url>
+    </site>
+  </distributionManagement>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.scala-tools</groupId>
-          <artifactId>maven-scala-plugin</artifactId>
-          <version>2.14.1</version>
-          <executions>
-            <execution>
-              <id>scala-compile</id>
-              <phase>compile</phase>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>scala-test-compile</id>
-              <phase>test-compile</phase>
-              <goals>
-                <goal>testCompile</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <scalaVersion>${scala.version}</scalaVersion>
-            <useFsc>true</useFsc>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <encoding>UTF-8</encoding>
-            <source>1.6</source>
-            <target>1.6</target>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.1.1</version>
-          <executions>
-            <execution>
-              <id>sources</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>jar-no-fork</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <defaultGoal>install</defaultGoal>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+
+    <resources>
+      <resource>
+        <directory>target/schema</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.5</version>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+        <version>${maven-scala-plugin-version}</version>
         <executions>
           <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
             <goals>
-              <goal>add-source</goal>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
             </goals>
-            <configuration>
-              <sources>
-                <source>src/main/scala</source>
-              </sources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/test/scala</source>
-              </sources>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <jvmArgs>
+            <jvmArg>-Xmx1024m</jvmArg>
+            <jvmArg>-Xss8m</jvmArg>
+          </jvmArgs>
+          <args>
+            <arg>-deprecation</arg>
+          </args>
+          <scalaVersion>${scala-version}</scalaVersion>
+        </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.0-beta-7</version>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin-version}</version>
+        
+        <configuration>
+          <!-- we must turn off the use of system class loader so our tests can find stuff - otherwise ScalaSupport compiler can't find stuff -->
+          <useSystemClassLoader>false</useSystemClassLoader>
+          <!--forkMode>pertest</forkMode-->
+          <childDelegation>false</childDelegation>
+          <useFile>true</useFile>
+          <failIfNoTests>false</failIfNoTests>
+        </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <developers>
-    <developer>
-      <id>inca</id>
-      <name>Boris Okunskiy</name>
-      <email>incarnate@whiteants.net</email>
-      <organization>wbt</organization>
-      <timezone>+3</timezone>
-      <roles>
-        <role>founder</role>
-        <role>project manager</role>
-        <role>committer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>sl</id>
-      <name>Stanislav Lakhtin</name>
-      <email>sl@whiteants.net</email>
-      <organization>wbt</organization>
-      <timezone>+3</timezone>
-      <roles>
-        <role>project director</role>
-        <role>executive sponsor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>vast</id>
-      <name>Vasily Polovnyov</name>
-      <email>vazilla@gmail.com</email>
-      <organization>wbt</organization>
-      <timezone>+3</timezone>
-      <roles>
-        <role>steering committee</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>heit</id>
-      <name>Kirill Kosinov</name>
-      <email>kirill.kosinov@gmail.com</email>
-      <organization>wbt</organization>
-      <timezone>+3</timezone>
-      <roles>
-        <role>technical writer</role>
-        <role>committer</role>
-      </roles>
-    </developer>
-  </developers>
-
-  <scm>
-    <url>http://github.com/inca/circumflex</url>
-    <connection>scm:git:git://github.com/inca/circumflex.git</connection>
-    <developerConnection>scm:git:git@github.com:inca/circumflex.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-
-  <licenses>
-    <license>
-      <name>BSD-like Circumflex License</name>
-      <distribution>repo</distribution>
-      <url>http://circumflex.ru/license</url>
-    </license>
-  </licenses>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>nexus</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-
 
 </project>
