@@ -1,9 +1,12 @@
-package ru.circumflex.md.test
+/**
+ * Copyright (C) 2009-2010 the original author or authors.
+ */
+package org.fusesoruce.scalamd.test
 
 import org.specs.runner.JUnit4
 import org.specs.Specification
 import java.io.File
-import ru.circumflex.md.Markdown
+import org.fusesoruce.scalamd.Markdown
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
 import org.specs.matcher.Matcher
