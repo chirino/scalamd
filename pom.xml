@@ -174,7 +174,7 @@
           <plugin>
             <groupId>org.scala-tools</groupId>
             <artifactId>maven-scala-plugin</artifactId>
-            <version>${scala-plugin-version}</version>
+            <version>${maven-scala-plugin-version}</version>
             <executions>
               <execution>
                 <id>doc</id>
