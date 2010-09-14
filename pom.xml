@@ -25,7 +25,7 @@
 
   <groupId>org.fusesource.scalamd</groupId>
   <artifactId>scalamd</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <name>Scala Markdown</name>
 
   <inceptionYear>2010</inceptionYear>
@@ -86,6 +86,7 @@
     
   </dependencies>
 
+  <url>http://${forge-project-id}.fusesource.com/maven/${project.version}</url>
   <scm>
     <connection>scm:git:git://github.com/chirino/scalamd.git</connection>
     <!-- Work around for issue: http://jira.codehaus.org/browse/SCM-444 -->
