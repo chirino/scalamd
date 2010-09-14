@@ -25,7 +25,7 @@
 
   <groupId>org.fusesource.scalamd</groupId>
   <artifactId>scalamd</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <name>Scala Markdown</name>
 
   <inceptionYear>2010</inceptionYear>
