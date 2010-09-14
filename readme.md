@@ -13,7 +13,7 @@ Circumflex folks over at `git://github.com/inca/circumflex.git`
 
 ## Build from sources
 
-Clone Circumflex repository:
+Clone the Scala Markdown Library repository:
 
     git clone git://github.com/chirino/scalamd.git
 

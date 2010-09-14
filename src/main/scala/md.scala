@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2009-2010 the original author or authors.
  */
-package org.fusesoruce.scalamd
+package org.fusesource.scalamd
 
 // import ru.circumflex.core._
 import java.util.regex._
