@@ -96,6 +96,14 @@ class StringEx(protected var text: StringBuilder) {
     return this
   }
 
+  def replaceAllFunc(pattern: Pattern, replacementFunction: Matcher => CharSequence, literally: Boolean = true): this.type =
+    if (literally)
+      replaceAll(pattern, replacementFunction)
+    else {
+      text = new StringBuilder(pattern.matcher(text).replaceAll(replacementFunction(null).toString))
+      return this
+    }
+
   def replaceAll(pattern: Pattern, replacement: CharSequence, literally: Boolean = true): this.type =
     if (literally) replaceAll(pattern, m => replacement)
     else {
