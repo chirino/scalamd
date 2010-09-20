@@ -7,6 +7,7 @@ package org.fusesource.scalamd
 import java.util.regex._
 import java.util.Random
 import java.lang.StringBuilder
+import collection.mutable.ListBuffer
 
 // # The Markdown Processor
 
@@ -161,14 +162,35 @@ object Markdown {
   val rInlineMd = Pattern.compile("<!--#md-->(.*)<!--~+-->", Pattern.DOTALL)
   // Macro definitions
   val rMacroDefs = Pattern.compile("<!--#md *\"{3}(.*?)\"{3}(\\?[idmsux]+)? +\"{3}(.*?)\"{3} *-->")
+  // TOC Macro
+  val rToc = Pattern.compile("""\{\:toc\}""")
 
   /**
    * Convert the `source` from Markdown to HTML.
    */
   def apply(source: String): String = new MarkdownText(source).toHtml
+
+  var macros: List[MacroDefinition] = Nil
+
 }
 
 // # Processing Stuff
+case class MacroDefinition(pattern: String, flags: String, replacement: (Matcher)=>String, literally: Boolean) {
+  val regex: Pattern = {
+    var f = 0;
+    if (flags != null) flags.toList.foreach {
+      case 'i' => f = f | Pattern.CASE_INSENSITIVE
+      case 'd' => f = f | Pattern.UNIX_LINES
+      case 'm' => f = f | Pattern.MULTILINE
+      case 's' => f = f | Pattern.DOTALL
+      case 'u' => f = f | Pattern.UNICODE_CASE
+      case 'x' => f = f | Pattern.COMMENTS
+      case _ =>
+    }
+    Pattern.compile(pattern, f)
+  }
+  override def toString = regex.toString
+}
 
 /**
  * We collect all processing logic within this class.
@@ -186,25 +208,9 @@ class MarkdownText(source: CharSequence) {
     override def toString = url + " (" + title + ")"
   }
 
-  case class MacroDefinition(val pattern: String, val flags: String, val replacement: String) {
-    val regex: Pattern = {
-      var f = 0;
-      if (flags != null) flags.toList.foreach {
-        case 'i' => f = f | Pattern.CASE_INSENSITIVE
-        case 'd' => f = f | Pattern.UNIX_LINES
-        case 'm' => f = f | Pattern.MULTILINE
-        case 's' => f = f | Pattern.DOTALL
-        case 'u' => f = f | Pattern.UNICODE_CASE
-        case 'x' => f = f | Pattern.COMMENTS
-        case _ =>
-      }
-      Pattern.compile(pattern, f)
-    }
-    override def toString = regex.toString
-  }
-
   protected var links: Map[String, LinkDefinition] = Map()
-  protected var macros: Seq[MacroDefinition] = Nil
+
+  protected var macros: List[MacroDefinition] = Markdown.macros
 
   // Protector for HTML blocks
   val htmlProtector = new Protector
@@ -335,7 +341,8 @@ class MarkdownText(source: CharSequence) {
    */
   protected def stripMacroDefinitions(text: StringEx) =
     text.replaceAll(rMacroDefs, m => {
-      macros ++= List(MacroDefinition(m.group(1), m.group(2), m.group(3)))
+      val replacement = m.group(3)
+      macros ++= List(MacroDefinition(m.group(1), m.group(2), (x)=> replacement, false))
       ""
     })
 
@@ -344,7 +351,6 @@ class MarkdownText(source: CharSequence) {
    */
   protected def runBlockGamut(text: StringEx): StringEx = {
     var result = text
-    result = doMacros(result)
     result = doHeaders(result)
     result = doHorizontalRulers(result)
     result = doLists(result)
@@ -360,20 +366,25 @@ class MarkdownText(source: CharSequence) {
    */
   protected def doHeaders(text: StringEx): StringEx = text
       .replaceAll(rH1, m => {
+    val label = runSpanGamut(new StringEx(m.group(1)))
     val id = m.group(3)
-    val idAttr = if (id == null) "" else " id = \"" + id + "\""
-    "<h1" + idAttr + ">" + runSpanGamut(new StringEx(m.group(1))) + "</h1>"
+    val idAttr = if (id == null) to_id(label.toString) else " id = \"" + id + "\""
+    "<h1" + idAttr + ">" + label + "</h1>"
   }).replaceAll(rH2, m => {
+    val label = runSpanGamut(new StringEx(m.group(1)))
     val id = m.group(3)
-    val idAttr = if (id == null) "" else " id = \"" + id + "\""
-    "<h2" + idAttr + ">" + runSpanGamut(new StringEx(m.group(1))) + "</h2>"
+    val idAttr = if (id == null) to_id(label.toString) else " id = \"" + id + "\""
+    "<h2" + idAttr + ">" + label + "</h2>"
   }).replaceAll(rHeaders, m => {
     val marker = m.group(1)
-    val body = runSpanGamut(new StringEx(m.group(2)))
+    val label = runSpanGamut(new StringEx(m.group(2)))
     val id = m.group(4)
-    val idAttr = if (id == null) "" else " id = \"" + id + "\""
-    "<h" + marker.length + idAttr + ">" + body + "</h" + marker.length + ">"
+    val idAttr = if (id == null) { if(marker.length<4) to_id(label.toString) else "" } else { " id = \"" + id + "\"" }
+    "<h" + marker.length + idAttr + ">" + label + "</h" + marker.length + ">"
   })
+
+  // TODO: handle the dup id case.
+  def to_id(label:String) = " id = \""+label.replaceAll("""[^a-zA-Z0-9\-:]""", "_") + "\""
 
   /**
    * Process horizontal rulers.
@@ -599,23 +610,81 @@ class MarkdownText(source: CharSequence) {
   /**
    * Process user-defined macros.
    */
-  protected def doMacros(text: StringEx): StringEx =
-    macros.foldLeft(text)((t, m) => t.replaceAll(m.regex, m.replacement, false))
+  protected def doMacros(text: StringEx): StringEx = {
+    macros.foldLeft(text)((t, m) => { t.replaceAllFunc(m.regex, m.replacement, m.literally) })
+  }
+
+  /**
+   * Process user-defined macros.
+   */
+  protected def doToc(text: StringEx): StringEx = {
+    text.replaceAllFunc(rToc, _=> (new TOC(text.toString)).toHtml, true);
+  }
 
   /**
    * Transform the Markdown source into HTML.
    */
   def toHtml(): String = {
     var result = text
+    result = stripMacroDefinitions(result)
+    result = doMacros(result)
     result = normalize(result)
     result = encodeCharsInsideTags(result)
     result = hashHtmlBlocks(result)
-    result = stripMacroDefinitions(result)
     result = hashHtmlComments(result)
     result = encodeAmpsAndLts(result)
     result = stripLinkDefinitions(result)
     result = runBlockGamut(result)
+    result = doToc(result)
     return result.toString
   }
 
+}
+
+object TOC {
+  val rHeadings = """<h(\d)(.*?\s+id\s*=\s*("|')(.*?)\3)?.*?>(.*?)</h\1>""".r
+}
+
+class TOC(val html: String) {
+  case class Heading(level: Int, id: String, body: String) {
+    def toHtml: String =
+      if (id == null) "<span>" + body + "</span>"
+      else "<a href=\"#" + id + "\">" + body + "</a>"
+    override def toString = toHtml
+  }
+  val headings: Seq[Heading] = TOC.rHeadings.findAllIn(html).matchData.toList
+      .flatMap { m =>
+        if( m.group(4)!=null ) {
+          Some(new Heading(m.group(1).toInt, m.group(4), m.group(5)))
+        } else {
+          None
+        }
+      }.toList
+
+  val toHtml: String = if (headings.size == 0) "" else {
+    val sb = new StringBuilder
+    def startList(l: Int) = sb.append("  " * l + """<li><ul style="list-style:none;">"""+"\n")
+    def endList(l: Int) = sb.append("  " * (l - 1) + "</ul></li>\n")
+    def add(l: Int, h: Heading) = sb.append("  " * l + "<li>" + h.toString + "</li>\n")
+    def formList(level: Int, index: Int): Unit = if (index < 0 || index >= headings.size) {
+      if (level > 1) {
+        endList(level)
+        formList(level - 1, index)
+      }
+    } else {
+      val h = headings(index)
+      if (level < h.level) {
+        startList(level)
+        formList(level + 1, index)
+      } else if (level > h.level) {
+        endList(level)
+        formList(level - 1, index)
+      } else {
+        add(level, h)
+        formList(level, index + 1)
+      }
+    }
+    formList(1, 0)
+    """<div class="toc"><ul style="list-style:none;">"""+"\n" + sb.toString + "</ul>"
+  }
 }
