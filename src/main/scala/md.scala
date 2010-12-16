@@ -163,7 +163,7 @@ object Markdown {
   // Macro definitions
   val rMacroDefs = Pattern.compile("<!--#md *\"{3}(.*?)\"{3}(\\?[idmsux]+)? +\"{3}(.*?)\"{3} *-->")
   // TOC Macro
-  val rToc = Pattern.compile("""\{\:toc\}""")
+  val rToc = Pattern.compile("""\{\:toc(:(\d+)-(\d+))?\}""")
 
   /**
    * Convert the `source` from Markdown to HTML.
@@ -364,8 +364,7 @@ class MarkdownText(source: CharSequence) {
   /**
    * Process both types of headers.
    */
-  protected def doHeaders(text: StringEx): StringEx = text
-      .replaceAll(rH1, m => {
+  protected def doHeaders(text: StringEx): StringEx = text.replaceAll(rH1, m => {
     val label = runSpanGamut(new StringEx(m.group(1)))
     val id = m.group(3)
     val idAttr = if (id == null) to_id(label.toString) else " id = \"" + id + "\""
@@ -379,7 +378,7 @@ class MarkdownText(source: CharSequence) {
     val marker = m.group(1)
     val label = runSpanGamut(new StringEx(m.group(2)))
     val id = m.group(4)
-    val idAttr = if (id == null) { if(marker.length<4) to_id(label.toString) else "" } else { " id = \"" + id + "\"" }
+    val idAttr = if (id == null) { to_id(label.toString) } else { " id = \"" + id + "\"" }
     "<h" + marker.length + idAttr + ">" + label + "</h" + marker.length + ">"
   })
 
@@ -618,7 +617,16 @@ class MarkdownText(source: CharSequence) {
    * Process user-defined macros.
    */
   protected def doToc(text: StringEx): StringEx = {
-    text.replaceAllFunc(rToc, _=> (new TOC(text.toString)).toHtml, true);
+    text.replaceAllFunc(rToc, m => {
+      val (start_level, end_level) = {
+        if (m.group(2)!=null && m.group(3)!=null) {
+          (m.group(2).toInt, m.group(3).toInt)
+        } else {
+          (1, 3)
+        }
+      }
+      (new TOC(start_level, end_level, text.toString)).toHtml
+    }, true);
   }
 
   /**
@@ -645,7 +653,8 @@ object TOC {
   val rHeadings = """<h(\d)(.*?\s+id\s*=\s*("|')(.*?)\3)?.*?>(.*?)</h\1>""".r
 }
 
-class TOC(val html: String) {
+class TOC(val start_level:Int, val end_level:Int, val html: String) {
+
   case class Heading(level: Int, id: String, body: String) {
     def toHtml: String =
       if (id == null) "<span>" + body + "</span>"
@@ -655,7 +664,12 @@ class TOC(val html: String) {
   val headings: Seq[Heading] = TOC.rHeadings.findAllIn(html).matchData.toList
       .flatMap { m =>
         if( m.group(4)!=null ) {
-          Some(new Heading(m.group(1).toInt, m.group(4), m.group(5)))
+          val h = new Heading(m.group(1).toInt, m.group(4), m.group(5))
+          if( start_level <= h.level && h.level <= end_level ) {
+            Some(h)
+          } else {
+            None
+          }
         } else {
           None
         }
@@ -663,11 +677,11 @@ class TOC(val html: String) {
 
   val toHtml: String = if (headings.size == 0) "" else {
     val sb = new StringBuilder
-    def startList(l: Int) = sb.append("  " * l + """<li><ul style="list-style:none;">"""+"\n")
-    def endList(l: Int) = sb.append("  " * (l - 1) + "</ul></li>\n")
-    def add(l: Int, h: Heading) = sb.append("  " * l + "<li>" + h.toString + "</li>\n")
+    def startList(l: Int) = sb.append("  " * (1 + l - start_level) + """<li><ul style="list-style:none;">"""+"\n")
+    def endList(l: Int) = sb.append("  " * (l - start_level) + "</ul></li>\n")
+    def add(l: Int, h: Heading) = sb.append("  " * (1 + l - start_level) + "<li>" + h.toString + "</li>\n")
     def formList(level: Int, index: Int): Unit = if (index < 0 || index >= headings.size) {
-      if (level > 1) {
+      if (level > start_level) {
         endList(level)
         formList(level - 1, index)
       }
@@ -684,7 +698,7 @@ class TOC(val html: String) {
         formList(level, index + 1)
       }
     }
-    formList(1, 0)
-    """<div class="toc"><ul style="list-style:none;">"""+"\n" + sb.toString + "</ul>"
+    formList(start_level, 0)
+    """<div class="toc"><ul style="list-style:none;">"""+"\n" + sb.toString + "</ul></div>"
   }
 }

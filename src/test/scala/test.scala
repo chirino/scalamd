@@ -32,6 +32,9 @@ object MarkdownSpec extends Specification {
   def process = addToSusVerb("process")
 
   "MarkdownProcessor" should process {
+    "TOC" in {
+      "TOC" must beFine
+    }
     "Amps and angle encoding" in {
       "Amps and angle encoding" must beFine
     }
