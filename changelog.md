@@ -4,6 +4,7 @@ Scala Markdown
 [Scala Markdown 1.3](http://scalamd.fusesource.org/maven/1.3), December 16, 2010
 ----
 
+* Upgrade to scala 2.8.1
 * The {:toc} macro is now more powerful, you configure the heading levels it displays using the following syntax: {:toc:2-3}
 
 [Scala Markdown 1.2](http://scalamd.fusesource.org/maven/1.2), September 20, 2010
