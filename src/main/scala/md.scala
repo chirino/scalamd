@@ -79,7 +79,7 @@ object Markdown {
       "(?:" + htmlNameTokenExpr + "\\s*=\\s*\"[^\"]*\")|" +
       "(?:" + htmlNameTokenExpr + "\\s*=\\s*'[^']*')|" +
       "(?:" + htmlNameTokenExpr + "\\s*=\\s*[a-z0-9_:.\\-]+)" +
-      ")\\s*)*)>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
+      ")\\s*)*)/?>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
   // Headers
   val rH1 = Pattern.compile("^ {0,3}(\\S.*?)( *\\{#(.*?)\\})?\\n=+(?=\\n+|\\Z)", Pattern.MULTILINE)
   val rH2 = Pattern.compile("^ {0,3}(\\S.*?)( *\\{#(.*?)\\})?\\n-+(?=\\n+|\\Z)", Pattern.MULTILINE)
@@ -255,10 +255,11 @@ class MarkdownText(source: CharSequence) {
    * Encodes specially-treated characters inside the HTML tags.
    */
   protected def encodeCharsInsideTags(text: StringEx) =
-    text.replaceAll(rInsideTags, m =>
+    text.replaceAll(rInsideTags, { m =>
+      val tail = if( m.group(0).endsWith("/>") ) "/>" else ">"
       "<" + encodeUnsafeChars(new StringEx(m.group(1)))
           .replaceAll(rEscAmp, "&amp;")
-          .toString + ">")
+          .toString + tail})
 
   // ## Processing methods
 

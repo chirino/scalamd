@@ -20,6 +20,7 @@ object MarkdownSpec extends Specification {
       val textFile = new File(this.getClass.getResource("/" + name + ".text").toURI)
       val htmlFile = new File(this.getClass.getResource("/" + name + ".html").toURI)
       val text = Markdown(FileUtils.readFileToString(textFile, "UTF-8")).trim
+//      println("[%s]".format(text))
       val html = FileUtils.readFileToString(htmlFile, "UTF-8").trim
       val diffIndex = StringUtils.indexOfDifference(text, html)
       val diff = StringUtils.difference(text, html)
@@ -32,6 +33,9 @@ object MarkdownSpec extends Specification {
   def process = addToSusVerb("process")
 
   "MarkdownProcessor" should process {
+    "Images" in {
+      "Images" must beFine
+    }
     "TOC" in {
       "TOC" must beFine
     }

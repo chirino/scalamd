@@ -1,6 +1,11 @@
 Scala Markdown
 ==============
 
+[Scala Markdown 1.4](http://scalamd.fusesource.org/maven/1.4), December 22, 2010
+----
+
+* Generated image tags were broken
+
 [Scala Markdown 1.3](http://scalamd.fusesource.org/maven/1.3), December 16, 2010
 ----
 
