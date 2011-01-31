@@ -186,21 +186,6 @@
             <_failok>false</_failok>
           </instructions>
         </configuration>
-
-        <!-- <executions>
-          <execution>
-            <id>cleanVersions</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>cleanVersions</goal>
-            </goals>
-            <configuration>
-              <versions>
-                <scalamd.osgi.version.clean>${project.version}</scalate.osgi.version.clean>
-              </versions>
-            </configuration>
-          </execution>
-        </executions> -->
       </plugin>
             
     </plugins>
