@@ -1,6 +1,11 @@
 Scala Markdown
 ==============
 
+[Scala Markdown 1.5](http://scalamd.fusesource.org/maven/1.5), February 7, 2011
+----
+
+* Added OSGi metadata
+
 [Scala Markdown 1.4](http://scalamd.fusesource.org/maven/1.4), December 22, 2010
 ----
 
